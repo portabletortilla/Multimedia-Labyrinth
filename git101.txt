@@ -1,0 +1,28 @@
+Mini Guia Git by yours truly 
+//Passos Setup.
+
+1     git init  
+
+2     git config --global user.name “Your Name”
+
+3     git config --global user.email “something@email.com”
+
+4     git clone https://github.com/portabletortilla/Multimedia-Labyrinth.git
+
+5     git remote add origin https://github.com/portabletortilla/Multimedia-Labyrinth.git
+
+//
+
+
+//Se quiserem puxar e ver a versão currente do projeto
+
+1    git pull origin
+2*   "Caso aconteçer um erro avisem-me, provavel que haja um merge a aconteçer"
+
+//Se quiserem mandar o que fizeram de novo para o projeto
+
+1    git add .
+2    git commit -m  "tua mensagem do que fizeste"
+3    git push origin master
+3*   "Caso aconteçer um erro avisem-me, provavel que haja um merge a aconteçer"
+
