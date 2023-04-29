@@ -1,0 +1,43 @@
+/*Css file that takes care of the style of the webpage*/
+
+h2{
+    color: whitesmoke;
+}
+body{
+    background-image:
+    url('images/sus.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    }
+
+
+div{
+    text-align: center
+    
+}
+
+.centerD {
+    padding: 15px;
+    background-color: rgba(0,0,0,0.2);
+}
+
+.topD{
+    cursor: pointer;
+}
+#sussy{
+    cursor:pointer;
+}
+#overlay{
+
+    position:fixed;
+    display:none;
+    width: 100%;
+    height:100%;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color: rgba(0, 0, 0, 0.5);
+
+}
