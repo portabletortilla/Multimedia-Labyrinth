@@ -5,7 +5,7 @@ window.addEventListener("load", (event) => {
   });
 
 function startBAudio(){
- console.log("Starting Background Noise.");
+ //console.log("Starting Background Noise.");
  document.getElementById("BackGroundNoise").play()
 }
 
@@ -28,9 +28,9 @@ function beginOverlay(message,image,audioPrompt="none",EndofOverlayMessage="none
     document.getElementById("Dialogue").hidden=true;
     
     //adding image given
-    var img = document.createElement("img");
-    img.src=image
+    var img = document.getElementById(image);
     
+    img.hidden=false;
     
     overlayImage=document.getElementById("oImg");
     
@@ -44,6 +44,7 @@ function beginOverlay(message,image,audioPrompt="none",EndofOverlayMessage="none
     subtitles.innerHTML=message;
     
     //Turning overlay on
+    document.getElementById("overlay").setAttribute("open",true);
     document.getElementById("overlay").style.display = "block";
 
     //play a transition sound if there was one
@@ -72,6 +73,26 @@ function endOverlay(){
     }
 
     //hiding the overlay again
-    overlay= document.getElementById("overlay").style.display = "none";
+    document.getElementById("overlay").setAttribute("open",false);
+    setTimeout(finishOverlay,1200)
 
+}
+function finishOverlay(){
+    document.getElementById("overlay").style.display = "none";
+}
+
+var mSRC;
+var mImageMap
+
+function mainImageTransition(src,imageMap){
+    mSRC = src;
+    mImageMap=imageMap
+    document.getElementById("mainImage").setAttribute("switch",true);
+    setTimeout(mainImageTransitionAux,1200);
+}
+
+function mainImageTransitionAux(){
+    document.getElementById("mainImage").setAttribute("src",mSRC);
+    document.getElementById("mainImage").setAttribute("usemap",mImageMap);
+    document.getElementById("mainImage").setAttribute("switch",false);
 }

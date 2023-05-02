@@ -72,5 +72,40 @@ area{
     bottom: 0;
     background-color: rgba(0,0,0,0.5); /* Black background with opacity */
     /* Specify a stack order in case you're using a different order for other elements */
-    /*cursor: pointer; */
 }
+
+.overlay[open="true"]{
+  animation: fade-in 1.2s forwards;
+}
+
+.overlay[open="false"]{
+  animation: fade-out 1.2s forwards;
+}
+
+#mainImage[switch="true"]{
+  animation: fade-out 1.2s forwards;
+}
+#mainImage[switch="false"]{
+  animation: fade-in 1.9s forwards;
+}
+
+@keyframes fade-in{
+  0% {
+    opacity:0;
+}
+  100%{
+    opacity: 1;
+  }
+
+}
+
+@keyframes fade-out{
+  0% {
+    opacity:1;
+}
+  100%{
+    opacity: 0;
+  }
+
+}
+
