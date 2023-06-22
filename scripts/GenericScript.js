@@ -9,6 +9,12 @@ function startBAudio(){
  document.getElementById("BackGroundNoise").play()
 }
 
+function playSound(audioPrompt){
+    var audio = new Audio("./audio/"+audioPrompt+".wav");
+    audio.play();
+
+}
+
 function WriteResponse(message , audioPrompt = "none"){
     startBAudio();
     console.log("Writing message : " + message);
@@ -49,8 +55,7 @@ function beginOverlay(message,image,audioPrompt="none",EndofOverlayMessage="none
 
     //play a transition sound if there was one
     if(audioPrompt != "none"){
-        var audio = new Audio("./audio/"+audioPrompt+".wav");
-        audio.play();
+        playSound(audioPrompt);
     }
 
     //endOverlay auxiliary function
@@ -87,7 +92,9 @@ var mImageMap
 function mainImageTransition(src,imageMap){
     mSRC = src;
     mImageMap=imageMap
+    document.getElementById("Dialogue").hidden=true;
     document.getElementById("mainImage").setAttribute("switch",true);
+    document.getElementById("mainImage").setAttribute("darken",false);
     setTimeout(mainImageTransitionAux,1200);
 }
 
