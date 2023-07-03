@@ -5,11 +5,17 @@ var subtitles = document.getElementById("subtitles");
         localStorage.clear();
         localStorage.setItem("EOM","none");
         localStorage.setItem("key",0);
+        localStorage.setItem("Gkey",0);
+        localStorage.setItem("bathtubKey",0);
         localStorage.setItem("door1State",0);
         localStorage.setItem("door2State",0);
+        localStorage.setItem("elevatorState",0);
         localStorage.setItem("timeoutGO",0);
-        
+        localStorage.setItem("bathState",0);
+        localStorage.setItem("returnbackground",0);
+        localStorage.setItem("overlayimgSwap","none");
     });
+
 //For quick sound effects that do not loop
 function playNewSound(audioPrompt){
     var audio = new Audio("./audio/"+audioPrompt+".wav");
@@ -75,8 +81,29 @@ function beginOverlay(message,image,audioPrompt="none",EndofOverlayMessage="none
 
 
 }
+
+function switchOverlay(image){
+    //adding image given
+
+    var img = document.getElementById(image);
+    img.hidden=false;
+    overlayImage=document.getElementById("oImg");
+    
+    while(overlayImage.firstChild){
+        overlayImage.removeChild(overlayImage.firstChild);
+    }
+    overlayImage.appendChild(img);
+    document.getElementById("overlay").setAttribute("open",true);
+    document.getElementById("overlay").style.display = "block";
+}
+
 function endOverlay(){
 
+    newimg=localStorage.getItem("overlayimgSwap");
+    if(newimg != "none"){
+        document.getElementById("mainImage").setAttribute("src",newimg);
+        localStorage.setItem("overlayimgSwap","none")
+    }
     //Check if we want the dialogue box to show up
     message = localStorage.getItem("EOM");
     if( message != "none"){
@@ -103,10 +130,18 @@ var mImageMap
 function mainImageTransition(src,imageMap,danger){
     
     //clear and restart the death timer
+    
+    if(localStorage.getItem("returnbackground")==1){
+        playAudio("Background");
+        localStorage.setItem("returnbackground",0);
+    }
+
     if(danger==0 && deathTimer!= null){
         clearTimeout(deathTimer);
         localStorage.setItem("timeoutGO",0);
         deathTimer=null;
+        stopAudio("Danger1");
+        playAudio("Background");
     }
     else if(danger==1 && deathTimer== null){
         deathTimer = setTimeout(deathByTimeOut,15000);
@@ -120,7 +155,7 @@ function mainImageTransition(src,imageMap,danger){
 
     } 
     if(danger==1 && document.getElementById("mainImage").getAttribute("darken") == "true"){
-        console.log("pitch darkness trasition");
+        console.log("pitch darkness transition");
         document.getElementById("mainImage").setAttribute("obscure",true);
     }
     else{
@@ -171,8 +206,9 @@ function deathByTimeOut(){
     else if(t==3){
         localStorage.setItem("timeoutGO",4);
         WriteResponse("TIME IS RUNNING OUT!");
+        playNewSound("putrid_heartbeat");
         /**Heavy breathing and/or heartbeat...*/
-        deathTimer=setTimeout(deathByTimeOut,7500);
+        deathTimer=setTimeout(deathByTimeOut,8000);
 
     }
     else{
@@ -188,7 +224,7 @@ function deathByTimeOut(){
 
 function start(){
     playNewSound("paperA");
-    mainImageTransition("./graphics/entrada.png" ,"#entrance",0);
+    mainImageTransition("./graphics/Entrada.gif" ,"#entrance",0);
     playAudio("Background");
 }
 
@@ -206,8 +242,7 @@ function paperF(){
 
 function door1F(){
     if(localStorage.getItem("door1State")== 1){
-        playNewSound("door_open");
-        mainImageTransition("./graphics/sala03.png" ,"#bath-map",0);
+        bathtubTransition();
         return;
     }
 
@@ -221,7 +256,38 @@ function door1F(){
     WriteResponse("Doesnt want to open might just be locked though ","door_interact");
 
 }
+function door2F(){
+    if(localStorage.getItem("door2State")== 1){
+        mainImageTransition("./graphics/sala01.gif","#elevator-map",0)
+        return;
+    }
 
+    if(localStorage.getItem("Gkey")== 1){
+        WriteResponse("The key melts in your hands as the door opens on its own.","door_unlock")
+        localStorage.setItem("Gkey",0);
+        localStorage.setItem("door2State",1);
+        return;
+    }
+
+    WriteResponse("The wierd door refuses to let you in, its golden lock taunting you.","door_interact");
+
+}
+
+function bathtubTransition(){
+    state = localStorage.getItem("bathState")
+    if(state != 2){
+        playNewSound("door_open");
+        mainImageTransition("./graphics/sala03_"+state+".gif" ,"#bath-map",0);
+        if(state == 0 ){
+            setTimeout(breaklamp,15000);
+        }
+    }
+    else{
+        arrR = ['Nope','No way!',' Nu huh','Maybe next time','Not Today!','We should just go away']
+        const random = Math.floor(Math.random() * arrR.length)
+        WriteResponse(arrR[random])
+    }    
+}
 
 function codedDoor(){
     localStorage.setItem("dial",'');
@@ -234,7 +300,7 @@ function resetDial(){
 }
 
 function dialNumber(num){
-    if(localStorage.getItem("door2State")==1){
+    if(localStorage.getItem("elevatorState")==1){
         subtitles.innerHTML = "The door is already unlocked";
         return;
     }
@@ -246,17 +312,24 @@ function dialNumber(num){
     clearTimeout(timerDial);
     timerDial = setTimeout(dialTimeout,10000);
 
-    localStorage.setItem("dial",localStorage.getItem("dial") + num)
-    p = localStorage.getItem("dial")
-    console.log(p)
+    localStorage.setItem("dial",localStorage.getItem("dial") + num);
+    p = localStorage.getItem("dial");
+    console.log(p);
     subtitles.innerHTML = p;
 
     if(p.length == 6){
         clearTimeout(timerDial);
-        checkPassword(p,"123098")
+        checkPassword(p,"123098");
     }    
 }
-
+function endingDoor(){
+    if(localStorage.getItem("elevatorState")==1){
+        mainImageTransition("./graphics/saida.gif","#ending_map",0);
+    }
+    else{
+        WriteResponse("Doesn't want to open");
+    }
+}
 function dialTimeout(){
     
     audio = new Audio("./audio/punisherdan__timeout.ogg");
@@ -271,11 +344,44 @@ function checkPassword(dialed,password){
         audio = new Audio("./audio/correct.wav");
         audio.play();
         subtitles.innerHTML = "The dials chime's a pleasing tune";
-        localStorage.setItem("door2State",1)
+        localStorage.setItem("elevatorState",1)
+        document.getElementById("mainImage").setAttribute("src","./graphics/sala01_1.gif");
     }
     else{
+        audio = new Audio("./audio/wrong.mp3");
+        audio.play();
         subtitles.innerHTML = "The dials screechs an ungodly tune";
         localStorage.setItem("dial","");
     }
 }
 /************************************************************************ */
+//bathroom exclusive functions//
+
+function bathtubF1(){
+    beginOverlay("Pure filth surrounds your very being" , 
+        "bath1");
+    setTimeout(bathtubF2,5500);   
+}
+function bathtubF2(){
+    switchOverlay("bath2");
+}
+
+function bathtubF3(){
+    localStorage.setItem("bathState",2);
+    localStorage.setItem("overlayimgSwap","./graphics/sala03_2.gif")
+    localStorage.setItem("Gkey",1);
+    localStorage.setItem("EOM","\ GOLDEN KEY \" has been added to your Inventory");
+    switchOverlay("bath3");
+}
+function breaklamp(){
+    stopAudio("Background");
+    localStorage.setItem("bathState",1);
+    playNewSound("lamp");
+    document.getElementById("mainImage").setAttribute("src","./graphics/sala03_1.gif");
+    localStorage.setItem("returnbackground",1);
+}
+
+
+function end(){
+
+}

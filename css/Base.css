@@ -23,17 +23,6 @@ area{
   
 }
 
-.Secret a{
-  top: 5px;
-  left: 5px;
-  position: absolute;
-  color: rgba(0,0,0,0);
-  
-}
-.Secret a:hover{
-  display: block;
-  color: powderblue;
-}
 
 #Dialogue{
   bottom: 20%;
