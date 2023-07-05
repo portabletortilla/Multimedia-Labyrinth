@@ -1,6 +1,8 @@
 var subtitles = document.getElementById("subtitles");
     var timerDial;
     var deathTimer;
+    var bathTimer;
+    var gameOver=0;
     window.addEventListener("load", (event) => {
         localStorage.clear();
         localStorage.setItem("EOM","none");
@@ -15,7 +17,6 @@ var subtitles = document.getElementById("subtitles");
         localStorage.setItem("returnbackground",0);
         localStorage.setItem("overlayimgSwap","none");
     });
-
 //For quick sound effects that do not loop
 function playNewSound(audioPrompt){
     var audio = new Audio("./audio/"+audioPrompt+".wav");
@@ -130,7 +131,9 @@ var mImageMap
 function mainImageTransition(src,imageMap,danger){
     
     //clear and restart the death timer
-    
+    if(bathTimer !=null){
+        clearTimeout(bathTimer);
+    }
     if(localStorage.getItem("returnbackground")==1){
         playAudio("Background");
         localStorage.setItem("returnbackground",0);
@@ -166,6 +169,7 @@ function mainImageTransition(src,imageMap,danger){
 }
 
 function mainImageTransitionAux(){
+
     document.getElementById("mainImage").setAttribute("src",mSRC);
     document.getElementById("mainImage").setAttribute("usemap",mImageMap);
     document.getElementById("mainImage").setAttribute("switch",false);
@@ -182,13 +186,13 @@ function mainImageTransitionAux(){
 
 function deathByTimeOut(){
     t = localStorage.getItem("timeoutGO");
-    if(t==0){
+    if(t==0 && gameOver==0){
         localStorage.setItem("timeoutGO",1);
         WriteResponse("You hear a distant scratching...");
         /** distant howling*/
         deathTimer=setTimeout(deathByTimeOut,15000);
     }
-    else if(t==1){
+    else if(t==1 && gameOver==0){
         localStorage.setItem("timeoutGO",2);
         WriteResponse("You feel in danger,find a way back inside");
         /** close scratching and beast sounds*/
@@ -197,13 +201,13 @@ function deathByTimeOut(){
 
         deathTimer=setTimeout(deathByTimeOut,15000);
     }
-    else if(t==2){
+    else if(t==2 && gameOver==0){
         localStorage.setItem("timeoutGO",3);
         document.getElementById("mainImage").setAttribute("darken",true);
         WriteResponse("It feels your fear...");
         deathTimer=setTimeout(deathByTimeOut,15000);
     }
-    else if(t==3){
+    else if(t==3 && gameOver==0){
         localStorage.setItem("timeoutGO",4);
         WriteResponse("TIME IS RUNNING OUT!");
         playNewSound("putrid_heartbeat");
@@ -211,10 +215,10 @@ function deathByTimeOut(){
         deathTimer=setTimeout(deathByTimeOut,8000);
 
     }
-    else{
+    else if(gameOver==0){
         localStorage.setItem("timeoutGO",0);
-        mainImageTransition("./graphics/jumpscare.jpg" ,"#imageMap",0);
         console.log("ded");
+        badEnd1();
     }
 }
 
@@ -258,7 +262,8 @@ function door1F(){
 }
 function door2F(){
     if(localStorage.getItem("door2State")== 1){
-        mainImageTransition("./graphics/sala01.gif","#elevator-map",0)
+        e = localStorage.getItem("elevatorState")
+        mainImageTransition("./graphics/sala01_"+e+".gif","#elevator-map",0)
         return;
     }
 
@@ -279,7 +284,7 @@ function bathtubTransition(){
         playNewSound("door_open");
         mainImageTransition("./graphics/sala03_"+state+".gif" ,"#bath-map",0);
         if(state == 0 ){
-            setTimeout(breaklamp,15000);
+            bathTimer=setTimeout(breaklamp,15000);
         }
     }
     else{
@@ -360,7 +365,7 @@ function checkPassword(dialed,password){
 function bathtubF1(){
     beginOverlay("Pure filth surrounds your very being" , 
         "bath1");
-    setTimeout(bathtubF2,5500);   
+    bathTimer = setTimeout(bathtubF2,5500);   
 }
 function bathtubF2(){
     switchOverlay("bath2");
@@ -374,6 +379,11 @@ function bathtubF3(){
     switchOverlay("bath3");
 }
 function breaklamp(){
+    
+    if(localStorage.getItem("bathState")!=0){
+        return;
+    }
+
     stopAudio("Background");
     localStorage.setItem("bathState",1);
     playNewSound("lamp");
@@ -381,7 +391,49 @@ function breaklamp(){
     localStorage.setItem("returnbackground",1);
 }
 
+function endIntro(){
+    endOverlay();
+    playAudio("Background");
+}
 
 function end(){
+    stopAudio("Background");
+    gameOver=1;
+    document.getElementById("mainImage").setAttribute("switch",true);
 
+    beginOverlay("","Ending");
+    document.getElementById("Ending").play();
+}
+
+function badEnd1(){
+    stopAudio("Background");
+    gameOver=1;
+    document.getElementById("mainImage").setAttribute("switch",true);
+
+    beginOverlay("","TimeoutEnd");
+    document.getElementById("TimeoutEnd").play();
+}
+
+function badEnd2(){
+    stopAudio("Background");
+    gameOver=1;
+
+    document.getElementById("mainImage").setAttribute("switch",true);
+
+    beginOverlay("","UphillEnd");
+    document.getElementById("UphillEnd").play();
+}
+
+function badEndRestart(){
+    document.getElementById("overlay").setAttribute("open",false);
+    setTimeout(badEndRestartAux,1200);
+}
+
+function badEndRestartAux(){
+    console.log("Showing gameover")
+    beginOverlay("","gameOver");
+    document.getElementById("gameOver").play();
+}
+function reload(){
+    location.reload(); 
 }
